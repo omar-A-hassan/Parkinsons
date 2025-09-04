@@ -121,7 +121,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # ML/Data Science specific
-models/
+/models/
 *.joblib
 *.pkl
 *.pickle
