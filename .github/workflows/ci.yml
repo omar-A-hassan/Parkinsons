@@ -42,7 +42,7 @@ jobs:
     
     - name: Run all tests
       run: |
-        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)"
         make test-unit
         make test-integration
       env:
