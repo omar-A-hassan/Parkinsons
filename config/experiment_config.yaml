@@ -1,0 +1,33 @@
+# Experiment Configuration
+
+# Experiment tracking
+experiment:
+  name: null  # Auto-generated if null
+  tags: ["wav2vec2", "parkinsons", "voice-analysis"]
+  notes: "Parkinson's disease detection from voice recordings"
+
+# Weights & Biases configuration
+wandb:
+  project: "parkinsons-voice"
+  entity: null  # Your wandb username/team
+  mode: "online"  # "online", "offline", or "disabled"
+  save_code: true
+  
+# Hyperparameter search (for future use)
+hyperparameter_search:
+  enabled: false
+  method: "random"  # "grid", "random", "bayes"
+  n_trials: 50
+  
+  search_space:
+    learning_rate:
+      type: "log_uniform"
+      low: 1e-6
+      high: 1e-3
+    batch_size:
+      type: "choice"
+      values: [2, 4, 8, 16]
+    dropout_rate:
+      type: "uniform"
+      low: 0.0
+      high: 0.5

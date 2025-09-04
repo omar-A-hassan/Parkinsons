@@ -1,0 +1,35 @@
+# Training Configuration
+device:
+  priority: ["mps", "cuda", "cpu"]  # Device selection priority
+  force: null  # Force specific device (overrides priority)
+
+# Training hyperparameters
+training:
+  epochs: 10
+  batch_size: 4
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  validate_every: 1  # Validate every N epochs
+  grad_clip_max_norm: 1.0
+  
+# Data loading
+data:
+  num_workers: 4
+  pin_memory: true
+  val_split: 0.2
+  stratify: true
+  shuffle: true
+  drop_last: true
+
+# Logging and saving
+logging:
+  use_wandb: false  # Enable/disable wandb logging
+  wandb_project: "parkinsons-voice"
+  wandb_name: null  # Auto-generated if null
+  log_every: 10  # Log every N batches
+  
+saving:
+  save_dir: "models"
+  save_best: true
+  save_latest: true

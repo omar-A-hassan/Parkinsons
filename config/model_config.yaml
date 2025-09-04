@@ -1,0 +1,25 @@
+# Model Configuration
+
+# Wav2Vec2 model settings
+wav2vec2:
+  model_name: "facebook/wav2vec2-base-960h"
+  num_classes: 2
+  freeze_feature_extractor: false
+  freeze_transformer: false
+  dropout_rate: 0.1
+  hidden_dim: 256
+
+# Audio preprocessing
+audio:
+  target_sample_rate: 16000
+  max_duration: 10.0  # seconds
+  normalize_audio: true
+  
+# Random Forest settings (for alternative classifier)
+random_forest:
+  n_estimators: 100
+  max_depth: null
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
+  n_jobs: -1
