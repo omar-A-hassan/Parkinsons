@@ -42,6 +42,7 @@ jobs:
     
     - name: Run all tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         make test-unit
         make test-integration
       env:
@@ -77,6 +78,7 @@ jobs:
     
     - name: Train Random Forest model
       run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         make train-rf
       env:
         PYTORCH_ENABLE_MPS_FALLBACK: "1"
