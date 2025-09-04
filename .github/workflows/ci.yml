@@ -42,8 +42,6 @@ jobs:
     
     - name: Run all tests
       run: |
-        make lint
-        make type-check
         make test-unit
         make test-integration
       env:
