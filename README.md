@@ -53,31 +53,73 @@ This will:
 
 ### Training Models
 
-#### Option 1: Wav2Vec2 Classifier (Fine-tuning)
+**Recommended: Use Makefile commands for simplicity**
+
 ```bash
-# Uses config/training_config.yaml and config/model_config.yaml
-python scripts/train_wav2vec.py
+# Train Random Forest model (most stable)
+make train-rf
+
+# Train Wav2Vec2 classifier
+make train-wav2vec
+
+# Run all tests first
+make test
 ```
 
-#### Option 2: Random Forest with Wav2Vec2 Features
+#### Alternative: Direct Script Execution
+
 ```bash
-# Uses config/random_forest_config.yaml
-python scripts/train_random_forest.py
+# Wav2Vec2 classifier with full configuration options
+python scripts/train_wav2vec.py --config_dir config --use_wandb
+
+# Random Forest with hyperparameter search
+python scripts/train_random_forest.py --hyperparameter_search --data_csv data/dataset_metadata.csv
 ```
 
-### Using Makefile
+## 🛠️ Development Workflow (Recommended)
+
+The project uses a Makefile for simplified command execution:
 
 ```bash
+# Setup and Installation
 make install-dev      # Install with dev dependencies
-make preprocess       # Create dataset metadata CSV
-make train-wav2vec    # Train Wav2Vec2 classifier
-make train-rf         # Train Random Forest classifier
-make test             # Run all tests
+make setup-env        # Create conda environment
+make update-env       # Update conda environment
+
+# Data Processing
+make preprocess       # Create dataset metadata CSV from data/ directories
+
+# Model Training
+make train-rf         # Train Random Forest classifier (recommended)
+make train-wav2vec    # Train Wav2Vec2 neural classifier
+
+# Testing and Quality
+make test             # Run all tests (unit + integration)
 make test-unit        # Run unit tests only
 make test-integration # Run training smoke tests
-make lint             # Run linting checks
+make lint             # Run flake8 and black linting
 make format           # Format code with black
 make type-check       # Run mypy type checking
+
+# Utilities
+make clean            # Clean build artifacts and cache
+make help             # Show all available commands
+```
+
+### Quick Start Workflow
+
+```bash
+# 1. Setup environment
+make install-dev
+
+# 2. Preprocess data (creates dataset_metadata.csv)
+make preprocess
+
+# 3. Run tests to ensure everything works
+make test
+
+# 4. Train a model
+make train-rf
 ```
 
 ## 🏗️ Architecture
@@ -138,10 +180,22 @@ Random Forest Classifier
 
 ### Basic Dataset Usage
 ```python
-from src.parkinsons_voice.data.dataset import ParkinsonsVoiceDataset
+import sys
+from pathlib import Path
 
-# Load dataset
-dataset = ParkinsonsVoiceDataset('data/dataset_metadata.csv')
+# Add src to path
+sys.path.insert(0, str(Path().absolute() / "src"))
+
+from parkinsons_voice.data.dataset import ParkinsonsVoiceDataset
+
+# Load dataset with required parameters
+dataset = ParkinsonsVoiceDataset(
+    csv_path='data/dataset_metadata.csv',
+    processor_name='facebook/wav2vec2-base-960h',
+    target_sample_rate=16000,
+    max_duration=10.0
+)
+
 print(f"Dataset size: {len(dataset)}")
 print(f"Class distribution: {dataset.get_class_distribution()}")
 
@@ -153,30 +207,76 @@ print(f"Label: {sample['label']}")
 
 ### Feature Extraction
 ```python
-from src.parkinsons_voice.models.wav2vec2_classifier import Wav2Vec2FeatureExtractor
+import sys
+import torch
+from pathlib import Path
 
-extractor = Wav2Vec2FeatureExtractor()
-features = extractor.extract_features(audio_tensor)
+# Add src to path
+sys.path.insert(0, str(Path().absolute() / "src"))
+
+from parkinsons_voice.models.wav2vec2_classifier import Wav2Vec2FeatureExtractor
+
+# Initialize with device specification
+device = "cpu"  # or "cuda" or "mps"
+extractor = Wav2Vec2FeatureExtractor(device=device)
+
+# Extract features from preprocessed audio
+# audio_tensor should be shape [batch_size, sequence_length]
+features = extractor.extract_features(audio_tensor.to(device))
 print(f"Features shape: {features.shape}")  # [batch_size, 768]
 ```
 
 ### Training Custom Models
 ```python
-from src.parkinsons_voice.models.wav2vec2_classifier import Wav2Vec2RandomForestClassifier
+import sys
+from pathlib import Path
 
-# Initialize and train Random Forest
-rf_model = Wav2Vec2RandomForestClassifier(n_estimators=100)
+# Add src to path  
+sys.path.insert(0, str(Path().absolute() / "src"))
+
+from parkinsons_voice.models.wav2vec2_classifier import Wav2Vec2RandomForestClassifier
+
+# Initialize with device and configuration
+device = "cpu"  # Random Forest typically uses CPU
+rf_model = Wav2Vec2RandomForestClassifier(
+    n_estimators=100,
+    device=device,
+    model_name='facebook/wav2vec2-base-960h'
+)
+
+# Train on DataLoader
 rf_model.fit(train_loader)
 
-# Evaluate
+# Evaluate with detailed metrics
 metrics = rf_model.evaluate(val_loader)
 print(f"Accuracy: {metrics['accuracy']:.4f}")
+print(f"F1-Score: {metrics['f1']:.4f}")
+print(f"Classification Report:\n{metrics['classification_report']}")
 ```
 
 ## 🧪 Testing
 
+**Recommended: Use Makefile commands**
 ```bash
-# Run all tests
+# Run all tests (unit + integration)
+make test
+
+# Run only unit tests (faster)
+make test-unit  
+
+# Run integration/smoke tests
+make test-integration
+
+# Run linting
+make lint
+
+# Run type checking
+make type-check
+```
+
+**Alternative: Direct pytest commands**
+```bash
+# Run all tests with verbose output
 pytest tests/ -v
 
 # Run specific test files
@@ -184,7 +284,7 @@ pytest tests/test_preprocessing.py -v
 pytest tests/test_dataset.py -v
 pytest tests/test_models.py -v
 
-# Run with coverage
+# Run with coverage report
 pytest tests/ --cov=src/parkinsons_voice --cov-report=html
 ```
 
@@ -193,9 +293,8 @@ pytest tests/ --cov=src/parkinsons_voice --cov-report=html
 All configuration is managed through YAML files in the `config/` directory:
 
 - **`config/data_config.yaml`**: Data paths and preprocessing settings
-- **`config/model_config.yaml`**: Wav2Vec2 model settings and audio parameters
+- **`config/model_config.yaml`**: Wav2Vec2 + Random Forest model settings and audio parameters
 - **`config/training_config.yaml`**: Training hyperparameters and device settings
-- **`config/random_forest_config.yaml`**: Random Forest model parameters
 - **`config/experiment_config.yaml`**: Experiment tracking and W&B settings
 
 ### Key Settings
@@ -211,18 +310,22 @@ All configuration is managed through YAML files in the `config/` directory:
 - `epochs`: 10
 - Device priority: MPS → CUDA → CPU
 
-**Random Forest** (config/random_forest_config.yaml):
+**Random Forest** (config/model_config.yaml under `random_forest` section):
 - `n_estimators`: 100
-- Cross-validation and hyperparameter search options
+- `max_depth`: null (unlimited)
+- `min_samples_split`: 2
+- Cross-validation and hyperparameter search options available via CLI
 
 ## 📊 Model Performance
 
-Expected performance metrics:
-- **Validation Accuracy**: ~85-90%
-- **F1-Score**: ~0.85-0.90
+Realistic performance expectations (based on actual results):
+- **Random Forest Accuracy**: ~55-65% (small dataset limitations)
+- **F1-Score**: ~55-65%
 - **Training Time**: 
-  - Wav2Vec2: ~30-60 minutes (10 epochs, GPU)
-  - Random Forest: ~5-10 minutes (CPU)
+  - Wav2Vec2: ~30-60 minutes (10 epochs, GPU/MPS)
+  - Random Forest: ~2-5 minutes (CPU)
+  
+Note: Performance is limited by the small dataset size (81 total samples). Larger datasets would yield significantly better results.
 
 ## 🚀 Deployment
 
