@@ -364,3 +364,4 @@ rf_model.load('models/random_forest.joblib')
 ## 📚 References
 
 - [Wav2Vec2 Paper](https://arxiv.org/abs/2006.11477)
+- [Dataset source](https://doi.org/10.6084/m9.figshare.23849127.v1)
