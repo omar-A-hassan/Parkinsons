@@ -364,16 +364,3 @@ rf_model.load('models/random_forest.joblib')
 ## 📚 References
 
 - [Wav2Vec2 Paper](https://arxiv.org/abs/2006.11477)
-- [PyTorch Audio Tutorial](https://pytorch.org/audio/stable/tutorials/speech_recognition_pipeline_tutorial.html)
-- [Transformers Documentation](https://huggingface.co/docs/transformers/)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙋‍♀️ Support
-
-For questions or issues:
-1. Check the [Issues](../../issues) page
-2. Create a new issue with detailed description
-3. Include system information and error logs
