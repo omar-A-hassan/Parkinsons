@@ -358,8 +358,7 @@ rf_model.load('models/random_forest.joblib')
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make changes and add tests
 4. Run tests: `make test`
-5. Run linting: `make lint`
-6. Submit a pull request
+5. Submit a pull request
 
 ## 📚 References
 
