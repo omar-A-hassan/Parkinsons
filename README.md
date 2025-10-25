@@ -352,13 +352,6 @@ model.load_state_dict(torch.load('models/wav2vec2_classifier.pt'))
 rf_model.load('models/random_forest.joblib')
 ```
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make changes and add tests
-4. Run tests: `make test`
-5. Submit a pull request
 
 ## 📚 References
 
